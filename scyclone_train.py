@@ -23,6 +23,7 @@ import torchaudio
 from module.dataset import *
 from module.generator import *
 from module.discriminator import *
+from module.inference import *
 
 #乱数のシードを設定　これにより再現性を確保できる
 manualSeed = 999
@@ -130,7 +131,7 @@ for epoch in itertools.count():
 	netG_A2B.train(), netG_B2A.train()
 	netD_A.train(), netD_B.train()
 	#データセットA, Bからbatch_size枚ずつ取り出し学習
-	for i, (real_A, real_B) in enumerate(zip(dataloader_A, dataloader_B), 0):
+	for (real_A, real_B) in zip(dataloader_A, dataloader_B):
 		#real_A.size() : torch.Size([batch_size, 128, 160])
 		#real_B.size() : torch.Size([batch_size, 128, 160])
 		#学習率の減衰の処理
@@ -192,32 +193,34 @@ for epoch in itertools.count():
 			"Loss/Id/B2B": loss_identity_B * weight_identity_loss,
 		}
 		#グラフへの出力用
-		adversarial_losses_netG_A2B.append(loss_adv_G_A2B)
-		adversarial_losses_netG_B2A.append(loss_adv_G_B2A)
+		adversarial_losses_netG_A2B.append(loss_adv_G_A2B.item())
+		adversarial_losses_netG_B2A.append(loss_adv_G_B2A.item())
 
 		#-------------------------
  		#discriminatorの学習
 		#-------------------------
 		#Adversarial loss: hinge loss (from Scyclone paper eq.1)
 		#netD_Aの学習
-		##本物画像によるLoss
+		##本物音声によるLoss
 		#スペクトログラムの中央128フレームを切り取ったものをDiscriminatorへの入力とする
-		pred_A_real = self.D_A(torch.narrow(real_A, dim=2, start=16, length=128))
+		pred_A_real = netD_A(torch.narrow(real_A, dim=2, start=16, length=128))
 		loss_D_A_real = torch.mean(F.relu(0.5 - pred_A_real))
-		##偽物画像によるLoss
-		fake_A = self.G_B2A(real_B)  # no_grad by PyTorch-Lightning
-		pred_A_fake = self.D_A(torch.narrow(fake_A, dim=2, start=16, length=128))
+		##偽物音声によるLoss
+		with torch.no_grad():
+			fake_A = netG_B2A(real_B)
+		pred_A_fake = netD_A(torch.narrow(fake_A, dim=2, start=16, length=128))
 		loss_D_A_fake = torch.mean(F.relu(0.5 + pred_A_fake))
 		##netD_A total loss
 		loss_D_A = loss_D_A_real + loss_D_A_fake
 
 		#netD_Bの学習
-		##本物画像によるLoss
-		pred_B_real = self.D_B(torch.narrow(real_B, dim=2, start=16, length=128))
+		##本物音声によるLoss
+		pred_B_real = netD_B(torch.narrow(real_B, dim=2, start=16, length=128))
 		loss_D_B_real = torch.mean(F.relu(0.5 - pred_B_real))
-		##偽物画像によるLoss
-		fake_B = self.G_A2B(real_A)  # no_grad by PyTorch-Lightning
-		pred_B_fake = self.D_B(torch.narrow(fake_B, dim=2, start=16, length=128))
+		##偽物音声によるLoss
+		with torch.no_grad():
+			fake_B = netG_A2B(real_A)
+		pred_B_fake = netD_B(torch.narrow(fake_B, dim=2, start=16, length=128))
 		loss_D_B_fake = torch.mean(F.relu(0.5 + pred_B_fake))
 		##netD_B total loss
 		loss_D_B = loss_D_B_real + loss_D_B_fake
@@ -239,12 +242,12 @@ for epoch in itertools.count():
 			"Loss/D_B": loss_D_B,
 		}
 		#グラフへの出力用
-		adversarial_losses_netD_A.append(loss_D_A)
-		adversarial_losses_netD_B.append(loss_D_B)
+		adversarial_losses_netD_A.append(loss_D_A.item())
+		adversarial_losses_netD_B.append(loss_D_B.item())
 
 		#学習状況をstdoutに出力
-		if i % 10 == 0:
-			print(f"[{epoch}]][{now_iteration}/{total_iterations}]", end="")
+		if now_iteration % 10 == 0:
+			print(f"[{now_iteration}/{total_iterations}]", end="")
 			for key, value in log_G.items():
 				print(f" {key}:{value:.5f}", end="")
 			for key, value in log_D.items():
@@ -263,33 +266,21 @@ for epoch in itertools.count():
 			with open(os.path.join(out_dir,"time.txt"), mode='w') as f:
 				f.write("total_time: {:.4f} sec.\n".format(total_time))
 			
-			#本物画像と生成画像の出力
-			#figオブジェクトから目盛り線などを消す
-			#batch_size枚の本物画像を取得
-			real_images = next(iter(dataloader))[0]
-			#本物画像を出力
-			plt.figure(figsize=(15,8))
-			plt.subplot(1,2,1)
-			plt.axis("off")
-			plt.title("Real Images")
-			#表示するには、
-			#例えば画像が[channel,height,width]となっている時
-			#transpose(1,2,0)とすることで
-			#[height,width,channel]に変換する必要がある
-			plt.imshow(np.transpose(vutils.make_grid(real_images.to(device)[:64], padding=5, normalize=True).cpu(),(1,2,0)))
-			#生成画像を出力　最後のepochでのGeneratorの出力を用いる
-			plt.subplot(1,2,2)
-			plt.axis("off")
-			plt.title("Fake Images")
-			plt.imshow(np.transpose(vutils.make_grid(fake_images.detach().to(device)[:64], padding=5, normalize=True).cpu(),(1,2,0)))
-			plt.show()
-			plt.savefig(os.path.join(out_dir,"img.png"),dpi=300)
+			# #domainA→domainBの推論サンプルを出力
+			# netG_A2B.eval()
+			# result_wave = inference(input_spectrogram, netG=netG_A2B)
+			# netG_A2B.train()
 
 			#学習済みモデル（CPU向け）を出力
+			netG_A2B.eval()
 			torch.save(netG_A2B.to('cpu').state_dict(), os.path.join(out_dir, "generator_A2B_trained_model_cpu.pth"))
 			netG_A2B.to(device)
+			netG_A2B.train()
+
+			netG_B2A.eval()
 			torch.save(netG_B2A.to('cpu').state_dict(), os.path.join(out_dir, "generator_B2A_trained_model_cpu.pth"))
 			netG_B2A.to(device)
+			netG_B2A.train()
 
 			#lossのグラフを出力
 			plt.clf()
