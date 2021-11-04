@@ -3,6 +3,9 @@
 import random
 import numpy as np
 import glob
+import matplotlib as mpl
+mpl.use('Agg')# AGG(Anti-Grain Geometry engine)
+import matplotlib.pyplot as plt
 
 import torch
 import torch.nn as nn
@@ -34,12 +37,41 @@ def extract_frames_randomly_from_spectrogram(input_spectrogram, extract_frames):
 	end_frame = start_frame + extract_frames
 	return input_spectrogram[..., start_frame:end_frame]
 
+#音声の波形を画像ファイルに出力
+def plot_waveform(waveform, save_path, sample_rate=16000):
+	#waveform : torch.size([フレーム数])
+	num_frames = waveform.size()[0]
+	time_axis = torch.arange(0, num_frames) / sample_rate
+	plt.clf()
+	plt.figure(figsize=(10,5))
+	plt.plot(time_axis, waveform, linewidth=1)
+	plt.grid()
+	plt.xlabel("time[s]")
+	plt.savefig(save_path)
+	plt.clf()
+	plt.close()
+
+#音声のスペクトログラムを画像ファイルに出力
+def plot_spectrogram(spectrogram, save_path, sample_rate=16000):
+	#spectrogram : torch.size([周波数, フレーム数])
+	#dbに変換, スペクトログラムを見やすくする
+	spectrogram_db = 20*torch.log10(spectrogram/torch.max(spectrogram))
+	plt.clf()
+	plt.figure(figsize=(10,5))
+	plt.imshow(spectrogram_db)
+	plt.xlabel("frame")
+	plt.ylabel("frequency")
+	plt.gca().invert_yaxis()
+	plt.savefig(save_path)
+	plt.clf()
+	plt.close()
+
 class Audio_Dataset(data.Dataset):
 	#音声のデータセットクラス
 	def __init__(self, file_list, extract_frames=160):
 		self.file_list = file_list
 		self.transform = transforms.Compose([
-			torchaudio.transforms.Spectrogram(n_fft=254)
+			torchaudio.transforms.Spectrogram(n_fft=254, hop_length=128)
 		])
 		#音声のスペクトログラムからランダムに何フレーム切り出すか
 		self.extract_frames = extract_frames
@@ -53,10 +85,11 @@ class Audio_Dataset(data.Dataset):
 		waveform = waveform.squeeze(dim=0)
 		waveform = self.transform(waveform)
 		waveform = extract_frames_randomly_from_spectrogram(input_spectrogram=waveform, extract_frames=self.extract_frames)
+		#waveform : torch.Size([frequency, frame])
 		return waveform
 
-#動作確認
-# train_img_list = make_datapath_list("./sample/*.wav")
+# #動作確認
+# train_img_list = make_datapath_list("../dataset/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav")
 
 # train_dataset = Audio_Dataset(file_list=train_img_list, extract_frames=160)
 
@@ -67,9 +100,12 @@ class Audio_Dataset(data.Dataset):
 # audio = next(batch_iterator)
 # print(audio.size())
 
-# waveform = torchaudio.transforms.GriffinLim(n_fft=254, n_iter=256)(audio[0])[None,...]
+# waveform = torchaudio.transforms.GriffinLim(n_fft=254, n_iter=256, hop_length=128)(audio[0])[None,...]
 # print(waveform.size())
-# torchaudio.save("test.wav", waveform, sample_rate=16000)
+# torchaudio.save("../output/test.wav", waveform, sample_rate=16000)
+
+# plot_waveform(waveform=waveform[0], save_path="../output/waveform.png", sample_rate=16000)
+# plot_spectrogram(spectrogram=audio[0], save_path="../output/spectrogram.png", sample_rate=16000)
 
 
 
