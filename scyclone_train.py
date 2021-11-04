@@ -255,8 +255,8 @@ for epoch in itertools.count():
 			print("")
 
 		#学習状況をファイルに出力
-		if((total_iterations%output_iter==0) or (now_iteration+1>=total_iterations)):
-			out_dir = os.path.join(output_dir, f"iteration{total_iterations}")
+		if((now_iteration%output_iter==0) or (now_iteration+1>=total_iterations)):
+			out_dir = os.path.join(output_dir, f"iteration{now_iteration}")
 			#出力用ディレクトリがなければ作る
 			os.makedirs(out_dir, exist_ok=True)
 
@@ -285,7 +285,7 @@ for epoch in itertools.count():
 			#lossのグラフを出力
 			plt.clf()
 			plt.figure(figsize=(10, 5))
-			plt.title("Generator_A2B and Discriminator_B Loss During Training")
+			plt.title("Generator_A2B and Discriminator_B Adversarial Loss During Training")
 			plt.plot(adversarial_losses_netG_A2B, label="netG_A2B")
 			plt.plot(adversarial_losses_netD_B, label="netD_B")
 			plt.xlabel("iterations")
@@ -297,7 +297,7 @@ for epoch in itertools.count():
 
 			plt.clf()
 			plt.figure(figsize=(10, 5))
-			plt.title("Generator_B2A and Discriminator_A Loss During Training")
+			plt.title("Generator_B2A and Discriminator_A Adversarial Loss During Training")
 			plt.plot(adversarial_losses_netG_B2A, label="netG_B2A")
 			plt.plot(adversarial_losses_netD_A, label="netD_A")
 			plt.xlabel("iterations")
