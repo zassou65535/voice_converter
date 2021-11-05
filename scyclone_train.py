@@ -265,11 +265,6 @@ for epoch in itertools.count():
 			total_time = t_epoch_finish - t_epoch_start
 			with open(os.path.join(out_dir,"time.txt"), mode='w') as f:
 				f.write("total_time: {:.4f} sec.\n".format(total_time))
-			
-			# #domainA→domainBの推論サンプルを出力
-			# netG_A2B.eval()
-			# result_wave = inference(input_spectrogram, netG=netG_A2B)
-			# netG_A2B.train()
 
 			#学習済みモデル（CPU向け）を出力
 			netG_A2B.eval()
