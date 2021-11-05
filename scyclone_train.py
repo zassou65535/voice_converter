@@ -32,8 +32,8 @@ random.seed(manualSeed)
 torch.manual_seed(manualSeed)
 
 #データセットの、各データへのパスのフォーマット　make_datapath_listへの引数
-dataset_path_A = "./dataset/domainA/jvs_extracted/ver1/**/*.wav"
-dataset_path_B = "./dataset/domainB/**/*.wav"
+dataset_path_A = "./dataset/train/domainA/jvs_extracted/ver1/**/*.wav"
+dataset_path_B = "./dataset/train/domainB/**/*.wav"
 #結果を出力するためのディレクトリ
 output_dir = "./output/scyclone/train/"
 #使用するデバイス
