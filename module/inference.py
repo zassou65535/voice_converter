@@ -23,6 +23,7 @@ import torchaudio
 #入力スペクトログラムを, netGを用いて変換する
 #任意のframe長のspectrogramに対応
 def inference(input_spectrogram, netG, unit_frame=160, cutout_frame=128):
+	device = input_spectrogram.device
 	#input_spectrogram : torch.Size([frequency, frame])
 	frequency = input_spectrogram.size()[0]
 	frame = input_spectrogram.size()[1]
@@ -37,8 +38,8 @@ def inference(input_spectrogram, netG, unit_frame=160, cutout_frame=128):
 		target_segment = input_spectrogram[:, max(0, start_frame):min(frame, end_frame)]
 		#足りない分に関してzero paddingを行う
 		if(start_frame<0):
-			target_segment = torch.cat([torch.zeros(frequency, -start_frame), target_segment], dim=-1)
-		target_segment = torch.cat([target_segment, torch.zeros(frequency, unit_frame - target_segment.size()[1])], dim=-1)
+			target_segment = torch.cat([torch.zeros(frequency, -start_frame).to(device), target_segment], dim=-1)
+		target_segment = torch.cat([target_segment, torch.zeros(frequency, unit_frame - target_segment.size()[1]).to(device)], dim=-1)
 		#netGを用いて変換
 		with torch.no_grad():
 			result_segment = netG(target_segment[None, ...])[0]

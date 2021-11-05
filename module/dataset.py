@@ -89,7 +89,7 @@ class Audio_Dataset(data.Dataset):
 		return waveform
 
 # #動作確認
-# train_img_list = make_datapath_list("../dataset/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav")
+# train_img_list = make_datapath_list("../dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav")
 
 # train_dataset = Audio_Dataset(file_list=train_img_list, extract_frames=160)
 
