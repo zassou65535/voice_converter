@@ -61,7 +61,7 @@ def output_comparison_graph(
 
 	#スペクトログラムの描画
 	plt.subplot(2,2,1)
-	spectrogram_db = 20*torch.log10(spectrogram_source/torch.max(spectrogram_source))#dbに変換, スペクトログラムを見やすくする
+	spectrogram_db = 20*torch.log10((spectrogram_source+1e-10)/torch.max(spectrogram_source))#dbに変換, スペクトログラムを見やすくする
 	plt.title("spectrogram_source")
 	plt.imshow(spectrogram_db)
 	plt.xlabel("frame")
@@ -69,7 +69,7 @@ def output_comparison_graph(
 	plt.gca().invert_yaxis()
 
 	plt.subplot(2,2,2)
-	spectrogram_db = 20*torch.log10(spectrogram_result/torch.max(spectrogram_result))#dbに変換, スペクトログラムを見やすくする
+	spectrogram_db = 20*torch.log10((spectrogram_result+1e-10)/torch.max(spectrogram_result))#dbに変換, スペクトログラムを見やすくする
 	plt.title("spectrogram_result")
 	plt.imshow(spectrogram_db)
 	plt.xlabel("frame")
