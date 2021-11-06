@@ -81,7 +81,7 @@ def output_comparison_graph(
 	num_frames = waveform_source.size()[0]
 	time_axis = torch.arange(0, num_frames) / sampling_rate
 	plt.title("waveform_source")
-	plt.plot(time_axis.tolist(), waveform_source.tolist(), linewidth=1)
+	plt.plot(time_axis, waveform_source, linewidth=1)
 	plt.grid()
 	plt.xlabel("time")
 
