@@ -41,11 +41,11 @@ device = "cuda:0"
 #バッチサイズ
 batch_size = 32
 #イテレーション数
-total_iterations = 100000
+total_iterations = 1000000
 #学習率
 lr = 0.0002
 #学習率をdecay_iterイテレーションごとにdecay_rate倍する
-lr_decay_iter = 100000
+lr_decay_iter = 500000
 lr_decay_rate = 0.1
 #何イテレーションごとに学習結果を出力するか
 output_iter = 2500
@@ -277,7 +277,7 @@ for epoch in itertools.count():
 			netG_B2A.to(device)
 			netG_B2A.train()
 
-			#lossのグラフを出力
+			#lossのグラフ(対数スケール)を出力
 			plt.clf()
 			plt.figure(figsize=(10, 5))
 			plt.title("Generator_A2B and Discriminator_B Adversarial Loss During Training")
@@ -285,6 +285,7 @@ for epoch in itertools.count():
 			plt.plot(adversarial_losses_netD_B, label="netD_B")
 			plt.xlabel("iterations")
 			plt.ylabel("Loss")
+			plt.yscale('log')
 			plt.legend()
 			plt.grid()
 			plt.savefig(os.path.join(out_dir, "loss_netG_A2B_netD_B.png"))
@@ -297,6 +298,7 @@ for epoch in itertools.count():
 			plt.plot(adversarial_losses_netD_A, label="netD_A")
 			plt.xlabel("iterations")
 			plt.ylabel("Loss")
+			plt.yscale('log')
 			plt.legend()
 			plt.grid()
 			plt.savefig(os.path.join(out_dir, "loss_netG_B2A_netD_A.png"))
