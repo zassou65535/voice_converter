@@ -33,7 +33,7 @@ torch.manual_seed(manualSeed)
 #変換したいwavファイルへの、各データへのパスのフォーマット
 wav_path = "./dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav"
 #scycloneの学習済みモデルへのパス
-scyclone_trained_model_path = "./output/scyclone/train/iteration25000/generator_A2B_trained_model_cpu.pth"
+scyclone_trained_model_path = "./output/scyclone/train/iteration40000/generator_A2B_trained_model_cpu.pth"
 #結果を出力するためのディレクトリ
 output_dir = "./output/scyclone/inference/"
 #使用するデバイス
