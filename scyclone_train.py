@@ -48,7 +48,7 @@ lr = 0.0002
 lr_decay_iter = 500000
 lr_decay_rate = 0.1
 #何イテレーションごとに学習結果を出力するか
-output_iter = 5000
+output_iter = 2500
 #cycle lossの係数
 weight_cycle_loss = 10
 #identity lossの係数
