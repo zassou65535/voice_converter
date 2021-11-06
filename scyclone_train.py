@@ -48,11 +48,11 @@ lr = 0.0002
 lr_decay_iter = 500000
 lr_decay_rate = 0.1
 #何イテレーションごとに学習結果を出力するか
-output_iter = 2500
+output_iter = 5000
 #cycle lossの係数
 weight_cycle_loss = 10
 #identity lossの係数
-weight_identity_loss = 1
+weight_identity_loss = 10
 
 #出力用ディレクトリがなければ作る
 os.makedirs(output_dir, exist_ok=True)
@@ -285,7 +285,6 @@ for epoch in itertools.count():
 			plt.plot(adversarial_losses_netD_B, label="netD_B")
 			plt.xlabel("iterations")
 			plt.ylabel("Loss")
-			plt.ylim(0, 5.0)
 			plt.legend()
 			plt.grid()
 			plt.savefig(os.path.join(out_dir, "loss_netG_A2B_netD_B.png"))
@@ -298,7 +297,6 @@ for epoch in itertools.count():
 			plt.plot(adversarial_losses_netD_A, label="netD_A")
 			plt.xlabel("iterations")
 			plt.ylabel("Loss")
-			plt.ylim(0, 5.0)
 			plt.legend()
 			plt.grid()
 			plt.savefig(os.path.join(out_dir, "loss_netG_B2A_netD_A.png"))
