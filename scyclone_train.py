@@ -52,7 +52,7 @@ output_iter = 2500
 #cycle lossの係数
 weight_cycle_loss = 10
 #identity lossの係数
-weight_identity_loss = 10
+weight_identity_loss = 1
 
 #出力用ディレクトリがなければ作る
 os.makedirs(output_dir, exist_ok=True)
@@ -179,6 +179,8 @@ for epoch in itertools.count():
 		optimizerG.zero_grad()
 		#傾きを計算
 		loss_G.backward()
+		#gradient explosionを避けるため勾配を制限
+		nn.utils.clip_grad_norm_(itertools.chain(netG_A2B.parameters(), netG_B2A.parameters()), max_norm=1.0, norm_type=2.0)
 		#Generatorのパラメーターを更新
 		optimizerG.step()
 
@@ -232,6 +234,8 @@ for epoch in itertools.count():
 		optimizerD.zero_grad()
 		#傾きを計算
 		loss_D.backward()
+		#gradient explosionを避けるため勾配を制限
+		nn.utils.clip_grad_norm_(itertools.chain(netD_A.parameters(), netD_B.parameters()), max_norm=1.0, norm_type=2.0)
 		#Generatorのパラメーターを更新
 		optimizerD.step()
 
