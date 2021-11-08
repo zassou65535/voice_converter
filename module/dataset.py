@@ -154,21 +154,18 @@ class Audio_Dataset_for_WaveRNN(data.Dataset):
 		spectrogram = spectrogram[..., start_frame:end_frame]
 		#波形を切り取り
 		waveform = waveform[..., start_frame*self.hop_length:end_frame*self.hop_length]
-		print(waveform)
 		#波形に対しmu-law圧縮を実行し値をbit[bit]に量子化
-		waveform = mu_raw_compression(waveform=waveform, bit=10)
-		print(waveform)
-		print(mu_raw_expansion(waveform_quantized=waveform, bit=10))
-		return waveform, spectrogram
+		waveform_quantized = mu_raw_compression(waveform=waveform, bit=10)
+		return waveform_quantized, spectrogram
 
-#動作確認
-train_img_list = make_datapath_list("../dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav")
+# #動作確認
+# train_img_list = make_datapath_list("../dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav")
 
-train_dataset = Audio_Dataset_for_WaveRNN(file_list=train_img_list, extract_frames=160, hop_length=128)
+# train_dataset = Audio_Dataset_for_WaveRNN(file_list=train_img_list, extract_frames=160, hop_length=128)
 
-batch_size = 1
-train_dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,shuffle=False)
+# batch_size = 1
+# train_dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,shuffle=False)
 
-batch_iterator = iter(train_dataloader)
-audio = next(batch_iterator)
+# batch_iterator = iter(train_dataloader)
+# audio = next(batch_iterator)
 
