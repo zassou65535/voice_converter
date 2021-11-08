@@ -32,8 +32,10 @@ random.seed(manualSeed)
 torch.manual_seed(manualSeed)
 
 #データセットの、各データへのパスのフォーマット　make_datapath_listへの引数
+# dataset_path_A = "./dataset/train/domainA/jvs_extracted/ver1/**/*.wav"
+# dataset_path_B = "./dataset/train/domainB/**/*.wav"
 dataset_path_A = "./dataset/train/domainA/jvs_extracted/ver1/**/*.wav"
-dataset_path_B = "./dataset/train/domainB/**/*.wav"
+dataset_path_B = "./dataset/train/domainA/jvs_extracted/ver2/**/*.wav"
 #結果を出力するためのディレクトリ
 output_dir = "./output/scyclone/train/"
 #使用するデバイス
@@ -45,7 +47,7 @@ total_iterations = 1000000
 #学習率
 lr = 0.0002
 #学習率をdecay_iterイテレーションごとにdecay_rate倍する
-lr_decay_iter = 500000
+lr_decay_iter = 1000000
 lr_decay_rate = 0.1
 #何イテレーションごとに学習結果を出力するか
 output_iter = 2500
@@ -59,12 +61,12 @@ os.makedirs(output_dir, exist_ok=True)
 
 #データセットAの読み込み、データセット作成
 path_list_A = make_datapath_list(dataset_path_A)
-train_dataset_A = Audio_Dataset(file_list=path_list_A, extract_frames=160)
+train_dataset_A = Audio_Dataset_for_Scyclone(file_list=path_list_A, extract_frames=160, hop_length=128)
 dataloader_A = torch.utils.data.DataLoader(train_dataset_A,batch_size=batch_size,shuffle=True,pin_memory=True,num_workers=8)
 print("datasetA size: {}".format(len(path_list_A)))
 #データセットBの読み込み、データセット作成
 path_list_B = make_datapath_list(dataset_path_B)
-train_dataset_B = Audio_Dataset(file_list=path_list_B, extract_frames=160)
+train_dataset_B = Audio_Dataset_for_Scyclone(file_list=path_list_B, extract_frames=160, hop_length=128)
 dataloader_B = torch.utils.data.DataLoader(train_dataset_B,batch_size=batch_size,shuffle=True,pin_memory=True,num_workers=8)
 print("datasetB size: {}".format(len(path_list_B)))
 

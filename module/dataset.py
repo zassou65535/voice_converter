@@ -30,13 +30,6 @@ def make_datapath_list(target_path):
 	print("audio files : " + str(len(path_list)))
 	return path_list
 
-#音声のスペクトログラムinput_spectrogramからランダムにextract_framesフレーム切り出す
-def extract_frames_randomly_from_spectrogram(input_spectrogram, extract_frames):
-	entire_frames_length = input_spectrogram.size()[-1]
-	start_frame = torch.randint(0, entire_frames_length-extract_frames, (1,))[0].item()
-	end_frame = start_frame + extract_frames
-	return input_spectrogram[..., start_frame:end_frame]
-
 #音声の波形を画像ファイルに出力
 def plot_waveform(waveform, save_path, sample_rate=16000):
 	#waveform : torch.size([フレーム数])
@@ -66,12 +59,12 @@ def plot_spectrogram(spectrogram, save_path, sample_rate=16000):
 	plt.clf()
 	plt.close()
 
-class Audio_Dataset(data.Dataset):
+class Audio_Dataset_for_Scyclone(data.Dataset):
 	#音声のデータセットクラス
-	def __init__(self, file_list, extract_frames=160):
+	def __init__(self, file_list, extract_frames=160, hop_length=128):
 		self.file_list = file_list
 		self.transform = transforms.Compose([
-			torchaudio.transforms.Spectrogram(n_fft=254, hop_length=128)
+			torchaudio.transforms.Spectrogram(n_fft=254, hop_length=hop_length)
 		])
 		#音声のスペクトログラムからランダムに何フレーム切り出すか
 		self.extract_frames = extract_frames
@@ -83,15 +76,20 @@ class Audio_Dataset(data.Dataset):
 		audio_path = self.file_list[index]
 		waveform, sample_rate = torchaudio.load(audio_path)
 		waveform = waveform.squeeze(dim=0)
-		waveform = self.transform(waveform)
-		waveform = extract_frames_randomly_from_spectrogram(input_spectrogram=waveform, extract_frames=self.extract_frames)
-		#waveform : torch.Size([frequency, frame])
-		return waveform
+		spectrogram = self.transform(waveform)
+		#音声のスペクトログラムspectrogramからランダムにself.extract_framesフレーム切り出す
+		entire_frames_length = spectrogram.size()[-1]
+		start_frame = torch.randint(0, entire_frames_length-self.extract_frames, (1,))[0].item()
+		end_frame = start_frame + self.extract_frames
+		#spectrogramを切り取り
+		spectrogram = spectrogram[..., start_frame:end_frame]
+		#spectrogram : torch.Size([frequency, frame])
+		return spectrogram
 
 # #動作確認
 # train_img_list = make_datapath_list("../dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav")
 
-# train_dataset = Audio_Dataset(file_list=train_img_list, extract_frames=160)
+# train_dataset = Audio_Dataset_for_Scyclone(file_list=train_img_list, extract_frames=160, hop_length=128)
 
 # batch_size = 1
 # train_dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,shuffle=False)
@@ -107,6 +105,69 @@ class Audio_Dataset(data.Dataset):
 # plot_waveform(waveform=waveform[0], save_path="../output/waveform.png", sample_rate=16000)
 # plot_spectrogram(spectrogram=audio[0], save_path="../output/spectrogram.png", sample_rate=16000)
 
+#mu-lawアルゴリズムを適用し、波形をbit[bit]に量子化する
+#参考 : https://librosa.org/doc/main/_modules/librosa/core/audio.html
+def mu_raw_compression(waveform, bit):
+	x = waveform
+	mu = 2**bit - 1
+	#mu-lawアルゴリズム
+	x_compressed = torch.sign(x)*torch.log(1+mu*torch.abs(x))/np.log(1+mu)
+	#波形をbit[bit]に量子化する
+	x_compressed = torch.bucketize(
+						input=x_compressed,
+						boundaries=torch.arange(start=-1.0, end=1.0+1.0/float(mu*2), step=1.0/float(mu)), 
+						right=True
+					)
+	return 2**(bit-1) + x_compressed
+#mu_raw_compressionによって圧縮+量子化された波形を解凍する
+#参考 : https://librosa.org/doc/main/_modules/librosa/core/audio.html
+def mu_raw_expansion(waveform_quantized, bit):
+	x = waveform_quantized - 2**(bit-1)
+	mu = 2**bit - 1
+	return torch.sign(x)*(1/mu)*((1+mu)**torch.abs(x)-1)
 
+class Audio_Dataset_for_WaveRNN(data.Dataset):
+	#音声のデータセットクラス
+	def __init__(self, file_list, extract_frames=160, hop_length=128):
+		self.file_list = file_list
+		self.transform = transforms.Compose([
+			torchaudio.transforms.Spectrogram(n_fft=254, hop_length=hop_length)
+		])
+		#音声のスペクトログラムからランダムに何フレーム切り出すか
+		self.extract_frames = extract_frames
+		self.hop_length = hop_length
+	#音声の総ファイル数を返す
+	def __len__(self):
+		return len(self.file_list)
+	#前処理済み音声の、Tensor形式のデータを取得
+	def __getitem__(self,index):
+		audio_path = self.file_list[index]
+		waveform, sample_rate = torchaudio.load(audio_path)
+		waveform = waveform.squeeze(dim=0)
+		spectrogram = self.transform(waveform)
+		#音声のスペクトログラムspectrogramからランダムにself.extract_framesフレーム切り出す
+		entire_frames_length = spectrogram.size()[-1]
+		start_frame = torch.randint(0, entire_frames_length-self.extract_frames, (1,))[0].item()
+		end_frame = start_frame + self.extract_frames
+		#spectrogramを切り取り
+		spectrogram = spectrogram[..., start_frame:end_frame]
+		#波形を切り取り
+		waveform = waveform[..., start_frame*self.hop_length:end_frame*self.hop_length]
+		print(waveform)
+		#波形に対しmu-law圧縮を実行し値をbit[bit]に量子化
+		waveform = mu_raw_compression(waveform=waveform, bit=10)
+		print(waveform)
+		print(mu_raw_expansion(waveform_quantized=waveform, bit=10))
+		return waveform, spectrogram
 
+#動作確認
+train_img_list = make_datapath_list("../dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav")
+
+train_dataset = Audio_Dataset_for_WaveRNN(file_list=train_img_list, extract_frames=160, hop_length=128)
+
+batch_size = 1
+train_dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,shuffle=False)
+
+batch_iterator = iter(train_dataloader)
+audio = next(batch_iterator)
 
