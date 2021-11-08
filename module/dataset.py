@@ -109,22 +109,23 @@ class Audio_Dataset_for_Scyclone(data.Dataset):
 #参考 : https://librosa.org/doc/main/_modules/librosa/core/audio.html
 def mu_raw_compression(waveform, bit):
 	x = waveform
-	mu = 2**bit - 1
+	mu = 2**bit-1
 	#mu-lawアルゴリズム
 	x_compressed = torch.sign(x)*torch.log(1+mu*torch.abs(x))/np.log(1+mu)
 	#波形をbit[bit]に量子化する
 	x_compressed = torch.bucketize(
 						input=x_compressed,
-						boundaries=torch.arange(start=-1.0, end=1.0+1.0/float(mu*2), step=1.0/float(mu)), 
+						boundaries=torch.arange(start=-1.0, end=1.0+1.0/float(mu*4), step=2.0/float(mu)), 
 						right=True
 					)
-	return 2**(bit-1) + x_compressed
+	return x_compressed
 #mu_raw_compressionによって圧縮+量子化された波形を解凍する
 #参考 : https://librosa.org/doc/main/_modules/librosa/core/audio.html
 def mu_raw_expansion(waveform_quantized, bit):
-	x = waveform_quantized - 2**(bit-1)
-	mu = 2**bit - 1
-	return torch.sign(x)*(1/mu)*((1+mu)**torch.abs(x)-1)
+	mu = 2**bit-1
+	x = waveform_quantized - int(mu+1)//2
+	x = x*2.0/(1+mu)
+	return (torch.sign(x)/mu)*(torch.pow(1+mu, torch.abs(x))-1)
 
 class Audio_Dataset_for_WaveRNN(data.Dataset):
 	#音声のデータセットクラス
