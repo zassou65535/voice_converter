@@ -203,6 +203,7 @@ for epoch in itertools.count():
 				)
 
 		now_iteration += 1
+		
 		#イテレーション数が上限に達したらループを抜ける
 		if(now_iteration>=total_iterations):
 			break

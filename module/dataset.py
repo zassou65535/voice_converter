@@ -141,7 +141,7 @@ class Audio_Dataset_for_WaveRNN(data.Dataset):
 	def __len__(self):
 		return len(self.file_list)
 	#前処理済み音声の、Tensor形式のデータを取得
-	def __getitem__(self,index):
+	def __getitem__(self, index):
 		audio_path = self.file_list[index]
 		waveform, sample_rate = torchaudio.load(audio_path)
 		waveform = waveform.squeeze(dim=0)

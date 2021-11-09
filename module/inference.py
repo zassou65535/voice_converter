@@ -57,7 +57,7 @@ def output_comparison_graph(
 		sampling_rate, #サンプリングレート
 	):
 	plt.clf()
-	plt.figure(figsize=(10,5))
+	plt.figure(figsize=(16,5))
 
 	max_column_num = max(len(waveform_list), len(spectrogram_list))
 
