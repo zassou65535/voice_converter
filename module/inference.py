@@ -22,7 +22,7 @@ import torchaudio
 
 #入力スペクトログラムを, scycloneのGenerator"netG"を用いて変換する
 #任意のframe長のspectrogramに対応
-def scyclone_inference(input_spectrogram, netG, unit_frame=160, cutout_frame=128):
+def inference(input_spectrogram, netG, unit_frame=160, cutout_frame=128):
 	device = input_spectrogram.device
 	#input_spectrogram : torch.Size([..., frequency, frame])
 	frequency = input_spectrogram.size()[-2]

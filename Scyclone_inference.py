@@ -33,7 +33,7 @@ torch.manual_seed(manualSeed)
 #変換したいwavファイルへの、各データへのパスのフォーマット
 wav_path = "./dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav"
 #scycloneの学習済みモデルへのパス
-scyclone_trained_model_path = "./output/scyclone/train/iteration240000/generator_A2B_trained_model_cpu.pth"
+scyclone_trained_model_path = "./output/scyclone/train/iteration327500/generator_A2B_trained_model_cpu.pth"
 #結果を出力するためのディレクトリ
 output_dir = "./output/scyclone/inference/"
 #使用するデバイス
@@ -72,11 +72,19 @@ for i, audio_filepath in enumerate(audio_filepath_list, 0):
 	torchaudio.save(os.path.join(save_dir, os.path.basename(audio_filepath)), input_waveform, sample_rate=16000)
 	torchaudio.save(os.path.join(save_dir, "converted_"+os.path.basename(audio_filepath)), output_waveform, sample_rate=16000)
 	print(f'generated {os.path.join(save_dir, "converted_"+os.path.basename(audio_filepath))}')
-	#変換前後を比較するためのグラフを出力
+	#変換前後の音声を、波形とスペクトログラム2つの観点で比較するためのグラフを出力する
+	waveform_list = [
+		(input_waveform.squeeze(dim=0).to("cpu"), "original_waveform"),
+		(output_waveform.squeeze(dim=0).to("cpu"), "converted_waveform")
+	]
+	spectrogram_list = [
+		(input_spectrogram.squeeze(dim=0).to("cpu"), "original_spectrogram"),
+		(output_spectrogram.squeeze(dim=0).to("cpu"), "converted_spectrogram")
+	]
 	output_comparison_graph(
-		save_path=os.path.join(save_dir, "comparison.png"), 
-		waveform_source=input_waveform.squeeze(dim=0).to("cpu"), waveform_result=output_waveform.squeeze(dim=0).to("cpu"),      #waveform : torch.size([frame])
-		spectrogram_source=input_spectrogram.squeeze(dim=0).to("cpu"), spectrogram_result=output_spectrogram.squeeze(dim=0).to("cpu"), #spectrogram : torch.Size([frequency, frame]
-		sampling_rate=16000 #サンプリングレート
-	)
+			save_path = os.path.join(save_dir, "comparison.png"),
+			waveform_list=waveform_list,     #waveform_list : (torch.size([frame]), graph_title)を要素に持つlist
+			spectrogram_list=spectrogram_list, #spectrogram_list : (torch.Size([frequency, frame]), graph_title)を要素に持つlist
+			sampling_rate=16000, #サンプリングレート
+		)
 
