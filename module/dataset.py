@@ -107,7 +107,7 @@ class Audio_Dataset_for_Scyclone(data.Dataset):
 
 #mu-lawアルゴリズムを適用し、波形をbit[bit]に量子化する
 #参考 : https://librosa.org/doc/main/_modules/librosa/core/audio.html
-def mu_raw_compression(waveform, bit):
+def mu_law_compression(waveform, bit):
 	x = waveform
 	mu = 2**bit-1
 	#mu-lawアルゴリズム
@@ -119,9 +119,9 @@ def mu_raw_compression(waveform, bit):
 						right=True
 					)
 	return x_compressed
-#mu_raw_compressionによって圧縮+量子化された波形を解凍する
+#mu_law_compressionによって圧縮+量子化された波形を解凍する
 #参考 : https://librosa.org/doc/main/_modules/librosa/core/audio.html
-def mu_raw_expansion(waveform_quantized, bit):
+def mu_law_expansion(waveform_quantized, bit):
 	mu = 2**bit-1
 	x = waveform_quantized - int(mu+1)//2
 	x = x*2.0/(1+mu)
@@ -153,9 +153,11 @@ class Audio_Dataset_for_WaveRNN(data.Dataset):
 		#spectrogramを切り取り
 		spectrogram = spectrogram[..., start_frame:end_frame]
 		#波形を切り取り
-		waveform = waveform[..., start_frame*self.hop_length:end_frame*self.hop_length]
+		waveform = waveform[..., start_frame*self.hop_length:end_frame*self.hop_length+1]
 		#波形に対しmu-law圧縮を実行し値をbit[bit]に量子化
-		waveform_quantized = mu_raw_compression(waveform=waveform, bit=10)
+		waveform_quantized = mu_law_compression(waveform=waveform, bit=10)
+		#waveform_quantized : torch.Size([frame*self.hop_length+1])
+		#spectrogram : torch.Size([frequency, frame])
 		return waveform_quantized, spectrogram
 
 # #動作確認

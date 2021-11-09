@@ -20,9 +20,9 @@ import torch.nn.functional as F
 
 import torchaudio
 
-#入力スペクトログラムを, netGを用いて変換する
+#入力スペクトログラムを, scycloneのGenerator"netG"を用いて変換する
 #任意のframe長のspectrogramに対応
-def inference(input_spectrogram, netG, unit_frame=160, cutout_frame=128):
+def scyclone_inference(input_spectrogram, netG, unit_frame=160, cutout_frame=128):
 	device = input_spectrogram.device
 	#input_spectrogram : torch.Size([..., frequency, frame])
 	frequency = input_spectrogram.size()[-2]
@@ -49,49 +49,39 @@ def inference(input_spectrogram, netG, unit_frame=160, cutout_frame=128):
 	result_segments = result_segments[..., 0:frame]
 	return result_segments
 
-#元音声(source)と変換結果(result)を、波形とスペクトログラム2つの観点で比較するためのグラフを出力する
+#音声を、波形とスペクトログラム2つの観点で比較するためのグラフを出力する
 def output_comparison_graph(
-		save_path, 
-		waveform_source, waveform_result,      #waveform : torch.size([frame])
-		spectrogram_source, spectrogram_result, #spectrogram : torch.Size([frequency, frame]
+		save_path, #画像の保存先
+		waveform_list,     #waveform_list : (torch.size([frame]), graph_title)を要素に持つlist
+		spectrogram_list, #spectrogram_list : (torch.Size([frequency, frame]), graph_title)を要素に持つlist
 		sampling_rate, #サンプリングレート
 	):
 	plt.clf()
 	plt.figure(figsize=(10,5))
 
-	#スペクトログラムの描画
-	plt.subplot(2,2,1)
-	spectrogram_db = 20*torch.log10((spectrogram_source+1e-10)/torch.max(spectrogram_source))#dbに変換, スペクトログラムを見やすくする
-	plt.title("spectrogram_source")
-	plt.imshow(spectrogram_db)
-	plt.xlabel("frame")
-	plt.ylabel("frequency")
-	plt.gca().invert_yaxis()
+	max_column_num = max(len(waveform_list), len(spectrogram_list))
 
-	plt.subplot(2,2,2)
-	spectrogram_db = 20*torch.log10((spectrogram_result+1e-10)/torch.max(spectrogram_result))#dbに変換, スペクトログラムを見やすくする
-	plt.title("spectrogram_result")
-	plt.imshow(spectrogram_db)
-	plt.xlabel("frame")
-	plt.ylabel("frequency")
-	plt.gca().invert_yaxis()
+	#スペクトログラムの描画
+	for i in range(0, len(spectrogram_list)):
+		spectrogram, graph_title = spectrogram_list[i]
+		plt.subplot(2, max_column_num, i+1)
+		spectrogram_db = 20*torch.log10((spectrogram+1e-10)/torch.max(spectrogram))#dbに変換, スペクトログラムを見やすくする
+		plt.title(graph_title)
+		plt.imshow(spectrogram_db)
+		plt.xlabel("frame")
+		plt.ylabel("frequency")
+		plt.gca().invert_yaxis()
 
 	#波形の描画
-	plt.subplot(2,2,3)
-	num_frames = waveform_source.size()[0]
-	time_axis = torch.arange(0, num_frames) / sampling_rate
-	plt.title("waveform_source")
-	plt.plot(time_axis, waveform_source, linewidth=1)
-	plt.grid()
-	plt.xlabel("time")
-
-	plt.subplot(2,2,4)
-	num_frames = waveform_result.size()[0]
-	time_axis = torch.arange(0, num_frames) / sampling_rate
-	plt.title("waveform_result")
-	plt.plot(time_axis, waveform_result, linewidth=1)
-	plt.grid()
-	plt.xlabel("time")
+	for i in range(0, len(waveform_list)):
+		waveform, graph_title = waveform_list[i]
+		plt.subplot(2,max_column_num, max_column_num + i+1)
+		num_frames = waveform.size()[0]
+		time_axis = torch.arange(0, num_frames) / sampling_rate
+		plt.title(graph_title)
+		plt.plot(time_axis, waveform, linewidth=1)
+		plt.grid()
+		plt.xlabel("time")
 
 	plt.savefig(save_path)
 	plt.close()

@@ -14,7 +14,9 @@ import torch.nn.init as init
 from torch.autograd import Function
 import torch.nn.functional as F
 
-#参考 : https://github.com/NVIDIA/waveglow
+from .dataset import *
+
+#参考 : https://github.com/anandaswarup/waveRNN
 def _init_GRUCell(gru_layer):
     """Instantiate GRUCell with the same paramters as the GRU layer
     """
@@ -27,17 +29,25 @@ def _init_GRUCell(gru_layer):
 
 
 class WaveRNNVocoder(nn.Module):
-    def __init__(self, n_spectrograms, hop_length, num_bits, audio_embedding_dim,
-                 conditioning_rnn_size, rnn_size, fc_size):
+    def __init__(
+                self,
+                n_spectrograms = 128,
+                hop_length = 128,
+                num_bits = 10,
+                audio_embedding_dim = 256,
+                conditioning_rnn_size = 128,
+                rnn_size = 896,
+                fc_size = 1024
+            ):
         super().__init__()
 
         self.n_spectrograms = n_spectrograms
         self.hop_length = hop_length
-        self.num_bits = num_bits#10
-        self.audio_embedding_dim = audio_embedding_dim#256
-        self.conditioning_rnn_size = conditioning_rnn_size#128
-        self.rnn_size = rnn_size#896
-        self.fc_size = fc_size#1024
+        self.num_bits = num_bits
+        self.audio_embedding_dim = audio_embedding_dim
+        self.conditioning_rnn_size = conditioning_rnn_size
+        self.rnn_size = rnn_size
+        self.fc_size = fc_size
 
         # Conditioning network
         self.conditioning_network = nn.GRU(input_size=n_spectrograms,
@@ -96,7 +106,7 @@ class WaveRNNVocoder(nn.Module):
 
         h = torch.zeros(spectrogram.size(0), self.rnn_size, device=spectrogram.device)
         x = torch.zeros(spectrogram.size(0), device=spectrogram.device, dtype=torch.long)
-        x = x.fill_(2**(self.bits - 1))
+        x = x.fill_(2**(self.num_bits - 1))
 
         for spectrogram_frame in torch.unbind(spectrogram, dim=1):
             # Audio embedding
@@ -105,7 +115,7 @@ class WaveRNNVocoder(nn.Module):
             # Autoregressive GRU Cell
             h = gru_cell(torch.cat((x, spectrogram_frame), dim=1), h)
 
-            x = F.relu(self.linear_layer(x))
+            x = F.relu(self.linear_layer(h))
             logits = self.output_layer(x)
 
             # Apply softmax over the logits and generate a distribution
@@ -116,7 +126,7 @@ class WaveRNNVocoder(nn.Module):
             x = dist.sample()
             wav.append(x.item())
             
-        wav = np.asarray(wav, dtype=np.int)
-        wav = librosa.mu_expand(wav - 2**(self.num_bits - 1), mu=2**self.num_bits - 1)
+        wav = torch.FloatTensor(wav)
+        wav = mu_law_expansion(waveform_quantized=wav, bit=10)
 
         return wav

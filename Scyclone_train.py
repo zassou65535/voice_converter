@@ -283,7 +283,7 @@ for epoch in itertools.count():
 			netG_B2A.to(device)
 			netG_B2A.train()
 
-			#lossのグラフ(対数スケール)を出力
+			#lossのグラフを出力
 			plt.clf()
 			plt.figure(figsize=(10, 5))
 			plt.title("Generator_A2B and Discriminator_B Adversarial Loss During Training")
