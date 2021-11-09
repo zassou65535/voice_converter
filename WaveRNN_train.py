@@ -55,7 +55,7 @@ os.makedirs(output_dir, exist_ok=True)
 
 #データセットAの読み込み、データセット作成
 path_list = make_datapath_list(dataset_path)
-train_dataset = Audio_Dataset_for_WaveRNN(file_list=path_list, extract_frames=160)
+train_dataset = Audio_Dataset_for_WaveRNN(file_list=path_list, extract_frames=24)
 dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,shuffle=True,pin_memory=True,num_workers=8)
 print("dataset size: {}".format(len(path_list)))
 

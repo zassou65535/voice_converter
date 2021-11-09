@@ -129,7 +129,7 @@ def mu_law_expansion(waveform_quantized, bit):
 
 class Audio_Dataset_for_WaveRNN(data.Dataset):
 	#音声のデータセットクラス
-	def __init__(self, file_list, extract_frames=160, hop_length=128):
+	def __init__(self, file_list, extract_frames=24, hop_length=128):
 		self.file_list = file_list
 		self.transform = transforms.Compose([
 			torchaudio.transforms.Spectrogram(n_fft=254, hop_length=hop_length)
@@ -148,7 +148,7 @@ class Audio_Dataset_for_WaveRNN(data.Dataset):
 		spectrogram = self.transform(waveform)
 		#音声のスペクトログラムspectrogramからランダムにself.extract_framesフレーム切り出す
 		entire_frames_length = spectrogram.size()[-1]
-		start_frame = torch.randint(0, entire_frames_length-self.extract_frames, (1,))[0].item()
+		start_frame = torch.randint(0, entire_frames_length-self.extract_frames-1, (1,))[0].item()
 		end_frame = start_frame + self.extract_frames
 		#spectrogramを切り取り
 		spectrogram = spectrogram[..., start_frame:end_frame]
