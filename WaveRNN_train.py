@@ -37,6 +37,8 @@ sample_audio_path = "./dataset/train/domainA/jvs_extracted/ver2/jvs004/VOICEACTR
 output_dir = "./output/wavernn/train/"
 #使用するデバイス
 device = "cuda:1"
+#学習時にデータオーギュメンテーション(音声のキー、音量のランダムな変更)を適用するかどうか
+data_augmentation = True
 #バッチサイズ
 batch_size = 16
 #イテレーション数
@@ -52,9 +54,9 @@ output_iter = 2500
 #出力用ディレクトリがなければ作る
 os.makedirs(output_dir, exist_ok=True)
 
-#データセットAの読み込み、データセット作成
+#データセットの読み込み、データセット作成
 path_list = make_datapath_list(dataset_path)
-train_dataset = Audio_Dataset_for_WaveRNN(file_list=path_list, extract_frames=24)
+train_dataset = Audio_Dataset_for_WaveRNN(file_list=path_list, augmentation=data_augmentation, extract_frames=24)
 dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,shuffle=True,pin_memory=True,num_workers=8)
 print("dataset size: {}".format(len(path_list)))
 
