@@ -115,8 +115,7 @@ for epoch in itertools.count():
 		#spectrogram : torch.Size([frequency, frame])
 		#学習率の減衰の処理
 		if((now_iteration%lr_decay_iter==0) and (not now_iteration==0)):
-			optimizerG.param_groups[0]['lr'] *= lr_decay_rate
-			optimizerD.param_groups[0]['lr'] *= lr_decay_rate
+			optimizer.param_groups[0]['lr'] *= lr_decay_rate
 		#deviceに転送
 		waveform_quantized = waveform_quantized.to(device)
 		spectrogram = spectrogram.to(device)
