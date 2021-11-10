@@ -45,9 +45,6 @@ batch_size = 32
 total_iterations = 1000000
 #学習率
 lr = 0.0002
-#学習率をdecay_iterイテレーションごとにdecay_rate倍する
-lr_decay_iter = 1000000
-lr_decay_rate = 0.1
 #何イテレーションごとに学習結果を出力するか
 output_iter = 2500
 #cycle lossの係数
@@ -135,10 +132,6 @@ for epoch in itertools.count():
 	for (real_A, real_B) in zip(dataloader_A, dataloader_B):
 		#real_A.size() : torch.Size([batch_size, 128, 160])
 		#real_B.size() : torch.Size([batch_size, 128, 160])
-		#学習率の減衰の処理
-		if((now_iteration%lr_decay_iter==0) and (not now_iteration==0)):
-			optimizerG.param_groups[0]['lr'] *= lr_decay_rate
-			optimizerD.param_groups[0]['lr'] *= lr_decay_rate
 		#deviceに転送
 		real_A = real_A.to(device)
 		real_B = real_B.to(device)
