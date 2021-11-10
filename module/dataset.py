@@ -69,20 +69,32 @@ def output_comparison_graph(
 
 class Audio_Dataset_for_Scyclone(data.Dataset):
 	#音声のデータセットクラス
-	def __init__(self, file_list, extract_frames=160, hop_length=128):
+	def __init__(self, file_list, augmentation, extract_frames=160, hop_length=128):
 		self.file_list = file_list
 		self.transform = transforms.Compose([
 			torchaudio.transforms.Spectrogram(n_fft=254, hop_length=hop_length)
 		])
 		#音声のスペクトログラムからランダムに何フレーム切り出すか
 		self.extract_frames = extract_frames
+		#波形に対しデータオーギュメンテーションを適用するかどうか
+		self.augmentation = augmentation
 	#音声の総ファイル数を返す
 	def __len__(self):
 		return len(self.file_list)
 	#前処理済み音声の、Tensor形式のデータを取得
-	def __getitem__(self,index):
+	def __getitem__(self, index):
 		audio_path = self.file_list[index]
 		waveform, sample_rate = torchaudio.load(audio_path)
+
+		if(self.augmentation):
+			#waveformに対するdata argumentation
+			#音量をランダムに1.0~2.1倍にする
+			magnitude = torch.FloatTensor(1).uniform_(1.0, 2.1)
+			waveform *= magnitude
+			#サンプリングレートを15000~17000[Hz]の間にランダムに変更
+			resampling_rate = torch.randint(15000, 17001, (1,))[0].item()
+			waveform = torchaudio.transforms.Resample(16000, resampling_rate, dtype=waveform.dtype)(waveform)
+
 		waveform = waveform.squeeze(dim=0)
 		spectrogram = self.transform(waveform)
 		#音声のスペクトログラムspectrogramからランダムにself.extract_framesフレーム切り出す
@@ -118,7 +130,7 @@ def mu_law_expansion(waveform_quantized, bit):
 
 class Audio_Dataset_for_WaveRNN(data.Dataset):
 	#音声のデータセットクラス
-	def __init__(self, file_list, extract_frames=24, hop_length=128):
+	def __init__(self, file_list, augmentation, extract_frames=24, hop_length=128):
 		self.file_list = file_list
 		self.transform = transforms.Compose([
 			torchaudio.transforms.Spectrogram(n_fft=254, hop_length=hop_length)
@@ -126,6 +138,8 @@ class Audio_Dataset_for_WaveRNN(data.Dataset):
 		#音声のスペクトログラムからランダムに何フレーム切り出すか
 		self.extract_frames = extract_frames
 		self.hop_length = hop_length
+		#波形に対しデータオーギュメンテーションを適用するかどうか
+		self.augmentation = augmentation
 	#音声の総ファイル数を返す
 	def __len__(self):
 		return len(self.file_list)
@@ -133,6 +147,16 @@ class Audio_Dataset_for_WaveRNN(data.Dataset):
 	def __getitem__(self, index):
 		audio_path = self.file_list[index]
 		waveform, sample_rate = torchaudio.load(audio_path)
+
+		if(self.augmentation):
+			#waveformに対するdata argumentation
+			#音量をランダムに1.0~2.1倍にする
+			magnitude = torch.FloatTensor(1).uniform_(1.0, 2.1)
+			waveform *= magnitude
+			#サンプリングレートを15000~17000[Hz]の間にランダムに変更
+			resampling_rate = torch.randint(15000, 17001, (1,))[0].item()
+			waveform = torchaudio.transforms.Resample(16000, resampling_rate, dtype=waveform.dtype)(waveform)
+
 		waveform = waveform.squeeze(dim=0)
 		spectrogram = self.transform(waveform)
 		#音声のスペクトログラムspectrogramからランダムにself.extract_framesフレーム切り出す
@@ -148,5 +172,3 @@ class Audio_Dataset_for_WaveRNN(data.Dataset):
 		#waveform_quantized : torch.Size([frame*self.hop_length+1])
 		#spectrogram : torch.Size([frequency, frame])
 		return waveform_quantized, spectrogram
-
-
