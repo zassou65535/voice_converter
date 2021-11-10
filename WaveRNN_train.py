@@ -22,7 +22,6 @@ import torchaudio
 
 from module.dataset import *
 from module.vocoder import *
-from module.inference import *
 
 #乱数のシードを設定　これにより再現性を確保できる
 manualSeed = 999

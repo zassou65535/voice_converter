@@ -23,7 +23,6 @@ import torchaudio
 from module.dataset import *
 from module.generator import *
 from module.vocoder import *
-from module.inference import *
 
 #乱数のシードを設定　これにより再現性を確保できる
 manualSeed = 999
@@ -34,13 +33,17 @@ torch.manual_seed(manualSeed)
 #変換したいwavファイルへの、各データへのパスのフォーマット
 wav_path = "./dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav"
 #Scycloneの学習済みGeneratorへのパス
-scyclone_trained_model_path = "./output/scyclone/train/iteration327500/generator_A2B_trained_model_cpu.pth"
+scyclone_trained_model_path = "./output/scyclone/train/iteration640000/generator_A2B_trained_model_cpu.pth"
 #WaveRNNの学習済みVocoderへのパス
-wavernn_trained_model_path = "./output/wavernn/train/iteration17500/vocoder_trained_model_cpu.pth"
+wavernn_trained_model_path = "./output/wavernn/train/iteration37500/vocoder_trained_model_cpu.pth"
 #結果を出力するためのディレクトリ
 output_dir = "./output/scyclone/inference/"
 #使用するデバイス
 device = "cuda:2"
+#スペクトログラムを何フレームごとにモデルを用いて変換するか
+unit_frame=160
+#変換後のスペクトログラムから、中央何フレーム分を切り出すか
+cutout_frame=128
 
 #GPUが使用可能かどうか確認
 device = torch.device(device if torch.cuda.is_available() else "cpu")
@@ -69,7 +72,31 @@ for i, audio_filepath in enumerate(audio_filepath_list, 0):
 
 	#変換の実行
 	input_spectrogram = input_spectrogram.to(device)
-	output_spectrogram = inference(input_spectrogram=input_spectrogram, netG=netG)
+	#input_spectrogram : torch.Size([..., frequency, frame])
+	frequency = input_spectrogram.size()[-2]
+	frame = input_spectrogram.size()[-1]
+	padding_frame = (unit_frame - cutout_frame)//2
+	#cutout_frameフレームずつ変換を行う　unit_frameずつinput_spectrogramから取り出しnetGで変換、出力の中央cutout_frameフレームを結果とする
+	result_segments = []#変換結果を格納
+	for i in range(0, frame//cutout_frame):
+		#切り取る箇所を指定
+		start_frame = i*cutout_frame - padding_frame
+		end_frame = (i+1)*cutout_frame + padding_frame
+		#指定の箇所を抽出
+		target_segment = input_spectrogram[..., max(0, start_frame):min(frame, end_frame)]
+		#足りない分に関してzero paddingを行う
+		if(start_frame<0):
+			target_segment = torch.cat([torch.zeros(1, frequency, -start_frame).to(device), target_segment], dim=-1)
+		target_segment = torch.cat([target_segment, torch.zeros(1, frequency, unit_frame - target_segment.size()[1]).to(device)], dim=-1)
+		#netGを用いて変換
+		with torch.no_grad():
+			result_segment = netG(target_segment)
+		#出力の中央cutout_frameフレームを結果とする
+		result_segments.append(torch.narrow(result_segment, dim=-1, start=16, length=cutout_frame))
+	#変換されたスペクトログラムを1つのTensorにまとめる
+	result_segments = torch.cat(result_segments, dim=-1)
+	#スペクトログラムのフレーム数をinput_spectrogramと同じ長さになるよう揃える
+	output_spectrogram = result_segments[..., 0:frame]
 	#スペクトログラムから負の値を取り除く
 	output_spectrogram = F.relu(output_spectrogram)
 

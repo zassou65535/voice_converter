@@ -30,33 +30,41 @@ def make_datapath_list(target_path):
 	print("audio files : " + str(len(path_list)))
 	return path_list
 
-#音声の波形を画像ファイルに出力
-def plot_waveform(waveform, save_path, sample_rate=16000):
-	#waveform : torch.size([フレーム数])
-	num_frames = waveform.size()[0]
-	time_axis = torch.arange(0, num_frames) / sample_rate
+#音声を、波形とスペクトログラム2つの観点で比較するためのグラフを出力する
+def output_comparison_graph(
+		save_path, #画像の保存先
+		waveform_list,     #waveform_list : (torch.size([frame]), graph_title)を要素に持つlist
+		spectrogram_list, #spectrogram_list : (torch.Size([frequency, frame]), graph_title)を要素に持つlist
+		sampling_rate, #サンプリングレート
+	):
 	plt.clf()
-	plt.figure(figsize=(10,5))
-	plt.plot(time_axis, waveform, linewidth=1)
-	plt.grid()
-	plt.xlabel("time[s]")
-	plt.savefig(save_path)
-	plt.clf()
-	plt.close()
+	plt.figure(figsize=(16,5))
 
-#音声のスペクトログラムを画像ファイルに出力
-def plot_spectrogram(spectrogram, save_path, sample_rate=16000):
-	#spectrogram : torch.size([周波数, フレーム数])
-	#dbに変換, スペクトログラムを見やすくする
-	spectrogram_db = 20*torch.log10(spectrogram/torch.max(spectrogram))
-	plt.clf()
-	plt.figure(figsize=(10,5))
-	plt.imshow(spectrogram_db)
-	plt.xlabel("frame")
-	plt.ylabel("frequency")
-	plt.gca().invert_yaxis()
+	max_column_num = max(len(waveform_list), len(spectrogram_list))
+
+	#スペクトログラムの描画
+	for i in range(0, len(spectrogram_list)):
+		spectrogram, graph_title = spectrogram_list[i]
+		plt.subplot(2, max_column_num, i+1)
+		spectrogram_db = 20*torch.log10((spectrogram+1e-10)/torch.max(spectrogram))#dbに変換, スペクトログラムを見やすくする
+		plt.title(graph_title)
+		plt.imshow(spectrogram_db)
+		plt.xlabel("frame")
+		plt.ylabel("frequency")
+		plt.gca().invert_yaxis()
+
+	#波形の描画
+	for i in range(0, len(waveform_list)):
+		waveform, graph_title = waveform_list[i]
+		plt.subplot(2,max_column_num, max_column_num + i+1)
+		num_frames = waveform.size()[0]
+		time_axis = torch.arange(0, num_frames) / sampling_rate
+		plt.title(graph_title)
+		plt.plot(time_axis, waveform, linewidth=1)
+		plt.grid()
+		plt.xlabel("time")
+
 	plt.savefig(save_path)
-	plt.clf()
 	plt.close()
 
 class Audio_Dataset_for_Scyclone(data.Dataset):
@@ -85,25 +93,6 @@ class Audio_Dataset_for_Scyclone(data.Dataset):
 		spectrogram = spectrogram[..., start_frame:end_frame]
 		#spectrogram : torch.Size([frequency, frame])
 		return spectrogram
-
-# #動作確認
-# train_img_list = make_datapath_list("../dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav")
-
-# train_dataset = Audio_Dataset_for_Scyclone(file_list=train_img_list, extract_frames=160, hop_length=128)
-
-# batch_size = 1
-# train_dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,shuffle=False)
-
-# batch_iterator = iter(train_dataloader)
-# audio = next(batch_iterator)
-# print(audio.size())
-
-# waveform = torchaudio.transforms.GriffinLim(n_fft=254, n_iter=256, hop_length=128)(audio[0])[None,...]
-# print(waveform.size())
-# torchaudio.save("../output/test.wav", waveform, sample_rate=16000)
-
-# plot_waveform(waveform=waveform[0], save_path="../output/waveform.png", sample_rate=16000)
-# plot_spectrogram(spectrogram=audio[0], save_path="../output/spectrogram.png", sample_rate=16000)
 
 #mu-lawアルゴリズムを適用し、波形をbit[bit]に量子化する
 #参考 : https://librosa.org/doc/main/_modules/librosa/core/audio.html
@@ -160,14 +149,4 @@ class Audio_Dataset_for_WaveRNN(data.Dataset):
 		#spectrogram : torch.Size([frequency, frame])
 		return waveform_quantized, spectrogram
 
-# #動作確認
-# train_img_list = make_datapath_list("../dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav")
-
-# train_dataset = Audio_Dataset_for_WaveRNN(file_list=train_img_list, extract_frames=160, hop_length=128)
-
-# batch_size = 1
-# train_dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,shuffle=False)
-
-# batch_iterator = iter(train_dataloader)
-# audio = next(batch_iterator)
 
