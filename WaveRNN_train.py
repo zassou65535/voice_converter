@@ -42,7 +42,7 @@ data_augmentation = True
 #バッチサイズ
 batch_size = 16
 #イテレーション数
-total_iterations = 200000
+total_iterations = 150000
 #学習率
 lr = 4e-4
 #学習率をdecay_iterイテレーションごとにdecay_rate倍する

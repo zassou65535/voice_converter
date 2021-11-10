@@ -46,7 +46,7 @@ data_augmentation_B = True
 #バッチサイズ
 batch_size = 32
 #イテレーション数
-total_iterations = 1000000
+total_iterations = 750000
 #学習率
 lr = 0.0002
 #何イテレーションごとに学習結果を出力するか

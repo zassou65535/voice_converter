@@ -31,7 +31,7 @@ random.seed(manualSeed)
 torch.manual_seed(manualSeed)
 
 #変換したいwavファイルへのパス
-input_audio_path = "./dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav"
+audio_path = "./dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav"
 #Scycloneの学習済みGeneratorへのパス
 scyclone_trained_model_path = "./output/scyclone/train/iteration700000/generator_A2B_trained_model_cpu.pth"
 #WaveRNNの学習済みVocoderへのパス
@@ -64,7 +64,7 @@ vocoder.load_state_dict(torch.load(wavernn_trained_model_path))
 vocoder = vocoder.to(device)
 
 #変換対象とする音声ファイルの読み込み
-input_waveform, _ = torchaudio.load(input_audio_path)
+input_waveform, _ = torchaudio.load(audio_path)
 #読み込んだ波形からスペクトログラムを生成
 input_spectrogram = torchaudio.transforms.Spectrogram(n_fft=254, hop_length=128)(input_waveform)
 input_spectrogram = input_spectrogram.to(device)
@@ -108,6 +108,7 @@ output_waveform_by_griffinlim = torchaudio.transforms.GriffinLim(n_fft=254, n_it
 os.makedirs(output_dir, exist_ok=True)#出力用ディレクトリがなければ作る
 torchaudio.save(os.path.join(output_dir, "input_audio.wav"), input_waveform, sample_rate=16000)
 torchaudio.save(os.path.join(output_dir, "output_audio_by_vocoder.wav"), output_waveform_by_vocoder, sample_rate=16000)
+#比較用として、GriffinLimによって生成した波形も出力する
 torchaudio.save(os.path.join(output_dir, "output_audio_by_griffinlim.wav"), output_waveform_by_griffinlim, sample_rate=16000)
 
 #変換前後の音声を、波形とスペクトログラム2つの観点で比較するためのグラフを出力する
