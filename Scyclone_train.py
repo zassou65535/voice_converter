@@ -44,11 +44,11 @@ data_augmentation_B = True
 #バッチサイズ
 batch_size = 16
 #イテレーション数
-total_iterations = 700000
+total_iterations = 500000
 #学習率
 lr = 0.0002
 #何イテレーションごとに学習結果を出力するか
-output_iter = 2500
+output_iter = 5000
 #cycle lossの係数
 weight_cycle_loss = 10
 #identity lossの係数

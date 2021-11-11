@@ -36,20 +36,20 @@ sample_audio_path = "./dataset/train/domainB/tukuyomi/VOICEACTRESS100_010.wav"
 #結果を出力するためのディレクトリ
 output_dir = "./output/wavernn/train/"
 #使用するデバイス
-device = "cuda:1"
+device = "cuda:0"
 #学習時にデータオーギュメンテーション(音声のキー、音量のランダムな変更)を適用するかどうか
 data_augmentation = True
 #バッチサイズ
 batch_size = 16
 #イテレーション数
-total_iterations = 150000
+total_iterations = 100000
 #学習率
 lr = 4e-4
 #学習率をdecay_iterイテレーションごとにdecay_rate倍する
 lr_decay_iter = 25000
 lr_decay_rate = 0.5
 #何イテレーションごとに学習結果を出力するか
-output_iter = 2500
+output_iter = 5000
 
 #出力用ディレクトリがなければ作る
 os.makedirs(output_dir, exist_ok=True)
@@ -57,7 +57,15 @@ os.makedirs(output_dir, exist_ok=True)
 #データセットの読み込み、データセット作成
 path_list = make_datapath_list(dataset_path)
 train_dataset = Audio_Dataset_for_WaveRNN(file_list=path_list, augmentation=data_augmentation, extract_frames=24)
-dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,shuffle=True,pin_memory=True,num_workers=8)
+dataloader = torch.utils.data.DataLoader(
+						train_dataset,
+						batch_size=batch_size,
+						shuffle=True,
+						pin_memory=True,
+						num_workers=8,
+						#num_workerごとにシードを設定　これがないと各num_workerにおいて乱数が似たような値を返してしまう
+						worker_init_fn=lambda worker_id: torch.manual_seed(manualSeed + worker_id)
+					)
 print("dataset size: {}".format(len(path_list)))
 
 #GPUが使用可能かどうか確認

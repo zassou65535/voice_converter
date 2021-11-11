@@ -32,11 +32,11 @@ torch.manual_seed(manualSeed)
 #対象とするwavファイルへのパスのフォーマット
 audio_path = "./dataset/train/domainB/tukuyomi/VOICEACTRESS100_010.wav"
 #WaveRNNの学習済みVocoderへのパス
-wavernn_trained_model_path = "./output/wavernn/train/iteration90000/vocoder_trained_model_cpu.pth"
+wavernn_trained_model_path = "./output/wavernn/train/iteration99999/vocoder_trained_model_cpu.pth"
 #結果を出力するためのディレクトリ
 output_dir = "./output/wavernn/inference/"
 #使用するデバイス
-device = "cuda:2"
+device = "cuda:0"
 
 #出力用ディレクトリがなければ作る
 os.makedirs(output_dir, exist_ok=True)

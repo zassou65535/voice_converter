@@ -33,13 +33,13 @@ torch.manual_seed(manualSeed)
 #変換したいwavファイルへのパス
 audio_path = "./dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav"
 #Scycloneの学習済みGeneratorへのパス
-scyclone_trained_model_path = "./output/scyclone/train/iteration700000/generator_A2B_trained_model_cpu.pth"
+scyclone_trained_model_path = "./output/scyclone/train/iteration399999/generator_A2B_trained_model_cpu.pth"
 #WaveRNNの学習済みVocoderへのパス
-wavernn_trained_model_path = "./output/wavernn/train/iteration90000/vocoder_trained_model_cpu.pth"
+wavernn_trained_model_path = "./output/wavernn/train/iteration99999/vocoder_trained_model_cpu.pth"
 #結果を出力するためのディレクトリ
 output_dir = "./output/scyclone/inference/"
 #使用するデバイス
-device = "cuda:2"
+device = "cuda:0"
 #スペクトログラムを何フレームごとにモデルを用いて変換するか
 unit_frame=160
 #変換後のスペクトログラムから、中央何フレーム分を切り出すか
