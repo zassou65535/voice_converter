@@ -30,7 +30,7 @@ random.seed(manualSeed)
 torch.manual_seed(manualSeed)
 
 #対象とするwavファイルへのパスのフォーマット
-audio_path = "./dataset/train/domainA/jvs_extracted/ver2/jvs004/VOICEACTRESS100_010.wav"
+audio_path = "./dataset/train/domainB/tukuyomi/VOICEACTRESS100_010.wav"
 #WaveRNNの学習済みVocoderへのパス
 wavernn_trained_model_path = "./output/wavernn/train/iteration90000/vocoder_trained_model_cpu.pth"
 #結果を出力するためのディレクトリ

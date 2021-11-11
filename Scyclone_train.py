@@ -31,10 +31,8 @@ random.seed(manualSeed)
 torch.manual_seed(manualSeed)
 
 #データセットの、各データへのパスのフォーマット　make_datapath_listへの引数
-# dataset_path_A = "./dataset/train/domainA/jvs_extracted/ver1/**/*.wav"
-# dataset_path_B = "./dataset/train/domainB/**/*.wav"
-dataset_path_A = "./dataset/train/domainA/jvs_extracted/ver1/**/*.wav"
-dataset_path_B = "./dataset/train/domainA/jvs_extracted/ver2/**/*.wav"
+dataset_path_A = "./dataset/train/domainA/**/*.wav"
+dataset_path_B = "./dataset/train/domainB/**/*.wav"
 #結果を出力するためのディレクトリ
 output_dir = "./output/scyclone/train/"
 #使用するデバイス
@@ -44,9 +42,9 @@ data_augmentation_A = False
 #ドメインBのデータセットに対して、学習時にデータオーギュメンテーション(音声のキー、音量のランダムな変更)を適用するかどうか
 data_augmentation_B = True
 #バッチサイズ
-batch_size = 32
+batch_size = 16
 #イテレーション数
-total_iterations = 750000
+total_iterations = 700000
 #学習率
 lr = 0.0002
 #何イテレーションごとに学習結果を出力するか
@@ -62,12 +60,27 @@ os.makedirs(output_dir, exist_ok=True)
 #データセットAの読み込み、データセット作成
 path_list_A = make_datapath_list(dataset_path_A)
 train_dataset_A = Audio_Dataset_for_Scyclone(file_list=path_list_A, augmentation=data_augmentation_A, extract_frames=160, hop_length=128)
-dataloader_A = torch.utils.data.DataLoader(train_dataset_A,batch_size=batch_size,shuffle=True,pin_memory=True,num_workers=8)
+dataloader_A = torch.utils.data.DataLoader(
+								train_dataset_A,
+								batch_size=batch_size,
+								shuffle=True,
+								pin_memory=True,
+								num_workers=8,
+								#num_workerごとにシードを設定　これがないと各num_workerにおいて乱数が似たような値を返してしまう
+    							worker_init_fn=lambda worker_id: torch.manual_seed(manualSeed + worker_id)
+							)
 print("datasetA size: {}".format(len(path_list_A)))
 #データセットBの読み込み、データセット作成
 path_list_B = make_datapath_list(dataset_path_B)
 train_dataset_B = Audio_Dataset_for_Scyclone(file_list=path_list_B, augmentation=data_augmentation_B, extract_frames=160, hop_length=128)
-dataloader_B = torch.utils.data.DataLoader(train_dataset_B,batch_size=batch_size,shuffle=True,pin_memory=True,num_workers=8)
+dataloader_B = torch.utils.data.DataLoader(
+								train_dataset_B,
+								batch_size=batch_size,
+								shuffle=True,
+								pin_memory=True,
+								num_workers=8,
+    							worker_init_fn=lambda worker_id: torch.manual_seed(manualSeed + worker_id)
+							)
 print("datasetB size: {}".format(len(path_list_B)))
 
 #GPUが使用可能かどうか確認
