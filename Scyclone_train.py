@@ -42,7 +42,7 @@ data_augmentation_A = False
 #ドメインBのデータセットに対して、学習時にデータオーギュメンテーション(音声のキー、音量のランダムな変更)を適用するかどうか
 data_augmentation_B = True
 #バッチサイズ
-batch_size = 16
+batch_size = 8
 #イテレーション数
 total_iterations = 500000
 #学習率
@@ -65,7 +65,7 @@ dataloader_A = torch.utils.data.DataLoader(
 								batch_size=batch_size,
 								shuffle=True,
 								pin_memory=True,
-								num_workers=8,
+								num_workers=os.cpu_count(),
 								#num_workerごとにシードを設定　これがないと各num_workerにおいて乱数が似たような値を返してしまう
     							worker_init_fn=lambda worker_id: torch.manual_seed(manualSeed + worker_id)
 							)
@@ -78,7 +78,7 @@ dataloader_B = torch.utils.data.DataLoader(
 								batch_size=batch_size,
 								shuffle=True,
 								pin_memory=True,
-								num_workers=8,
+								num_workers=os.cpu_count(),
     							worker_init_fn=lambda worker_id: torch.manual_seed(manualSeed + worker_id)
 							)
 print("datasetB size: {}".format(len(path_list_B)))
