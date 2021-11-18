@@ -31,10 +31,10 @@ torch.manual_seed(manualSeed)
 
 #対象とするwavファイルへのパスのフォーマット
 audio_path = "./dataset/train/domainB/tukuyomi/VOICEACTRESS100_010.wav"
-#WaveRNNの学習済みVocoderへのパス
-wavernn_trained_model_path = "./output/wavernn/train/iteration99999/vocoder_trained_model_cpu.pth"
+#Vocoderの学習済みVocoderへのパス
+vocoder_trained_model_path = "./output/vocoder/train/iteration99999/vocoder_trained_model_cpu.pth"
 #結果を出力するためのディレクトリ
-output_dir = "./output/wavernn/inference/"
+output_dir = "./output/vocoder/inference/"
 #使用するデバイス
 device = "cuda:0"
 
@@ -45,10 +45,10 @@ os.makedirs(output_dir, exist_ok=True)
 device = torch.device(device if torch.cuda.is_available() else "cpu")
 print("device:",device)
 
-#WaveRNNのVocoderのインスタンスを生成
-vocoder = WaveRNNVocoder()
+#Vocoderのインスタンスを生成
+vocoder = Vocoder()
 #学習済みモデルの読み込み
-vocoder.load_state_dict(torch.load(wavernn_trained_model_path))
+vocoder.load_state_dict(torch.load(vocoder_trained_model_path))
 #ネットワークをデバイスに移動
 vocoder = vocoder.to(device)
 

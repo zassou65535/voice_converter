@@ -128,7 +128,7 @@ def mu_law_expansion(waveform_quantized, bit):
 	x = x*2.0/(1+mu)
 	return (torch.sign(x)/mu)*(torch.pow(1+mu, torch.abs(x))-1)
 
-class Audio_Dataset_for_WaveRNN(data.Dataset):
+class Audio_Dataset_for_Vocoder(data.Dataset):
 	#音声のデータセットクラス
 	def __init__(self, file_list, augmentation, extract_frames=24, hop_length=128):
 		self.file_list = file_list

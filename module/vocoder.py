@@ -28,7 +28,7 @@ def _init_GRUCell(gru_layer):
     return gru_cell
 
 
-class WaveRNNVocoder(nn.Module):
+class Vocoder(nn.Module):
     def __init__(
                 self,
                 n_spectrograms = 128,

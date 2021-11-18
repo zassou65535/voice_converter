@@ -34,8 +34,8 @@ torch.manual_seed(manualSeed)
 audio_path = "./dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav"
 #Scycloneの学習済みGeneratorへのパス
 scyclone_trained_model_path = "./output/scyclone/train/iteration399999/generator_A2B_trained_model_cpu.pth"
-#WaveRNNの学習済みVocoderへのパス
-wavernn_trained_model_path = "./output/wavernn/train/iteration99999/vocoder_trained_model_cpu.pth"
+#学習済みVocoderへのパス
+vocoder_trained_model_path = "./output/vocoder/train/iteration99999/vocoder_trained_model_cpu.pth"
 #結果を出力するためのディレクトリ
 output_dir = "./output/scyclone/inference/"
 #使用するデバイス
@@ -56,10 +56,10 @@ netG.load_state_dict(torch.load(scyclone_trained_model_path))
 #ネットワークをデバイスに移動
 netG = netG.to(device)
 
-#WaveRNNのVocoderのインスタンスを生成
-vocoder = WaveRNNVocoder()
+#Vocoderのインスタンスを生成
+vocoder = Vocoder()
 #学習済みモデルの読み込み
-vocoder.load_state_dict(torch.load(wavernn_trained_model_path))
+vocoder.load_state_dict(torch.load(vocoder_trained_model_path))
 #ネットワークをデバイスに移動
 vocoder = vocoder.to(device)
 
