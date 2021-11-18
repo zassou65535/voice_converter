@@ -31,7 +31,7 @@ torch.manual_seed(manualSeed)
 
 #対象とするwavファイルへのパスのフォーマット
 audio_path = "./dataset/train/domainB/tukuyomi/VOICEACTRESS100_010.wav"
-#Vocoderの学習済みVocoderへのパス
+#Vocoderの学習済みモデルへのパス
 vocoder_trained_model_path = "./output/vocoder/train/iteration99999/vocoder_trained_model_cpu.pth"
 #結果を出力するためのディレクトリ
 output_dir = "./output/vocoder/inference/"
