@@ -32,7 +32,7 @@ torch.manual_seed(manualSeed)
 #データセットの、各データへのパスのフォーマット　make_datapath_listへの引数
 dataset_path = "./dataset/train/domainB/**/*.wav"
 #学習過程を見るための、サンプル音声のパス(フォーマットではなく普通のパスとして指定)
-sample_audio_path = "./dataset/train/domainB/tukuyomi/VOICEACTRESS100_010.wav"
+sample_audio_path = "./dataset/train/domainB/tukuyomi/tukuyomi_16000/VOICEACTRESS100_010.wav"
 #結果を出力するためのディレクトリ
 output_dir = "./output/vocoder/train/"
 #使用するデバイス
