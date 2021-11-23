@@ -38,7 +38,7 @@ output_dir = "./output/scyclone/train/"
 #使用するデバイス
 device = "cuda:0"
 #バッチサイズ
-batch_size = 8
+batch_size = 16
 #イテレーション数
 total_iterations = 500000
 #学習率
