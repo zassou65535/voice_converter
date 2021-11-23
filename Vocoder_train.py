@@ -37,12 +37,10 @@ sample_audio_path = "./dataset/train/domainB/tukuyomi/VOICEACTRESS100_010.wav"
 output_dir = "./output/vocoder/train/"
 #使用するデバイス
 device = "cuda:0"
-#学習時にデータオーギュメンテーション(音声のキー、音量のランダムな変更)を適用するかどうか
-data_augmentation = True
 #バッチサイズ
 batch_size = 8
 #イテレーション数
-total_iterations = 100000
+total_iterations = 120000
 #学習率
 lr = 4e-4
 #学習率をdecay_iterイテレーションごとにdecay_rate倍する
@@ -56,7 +54,7 @@ os.makedirs(output_dir, exist_ok=True)
 
 #データセットの読み込み、データセット作成
 path_list = make_datapath_list(dataset_path)
-train_dataset = Audio_Dataset_for_Vocoder(file_list=path_list, augmentation=data_augmentation, extract_frames=24)
+train_dataset = Audio_Dataset_for_Vocoder(file_list=path_list, extract_frames=24)
 dataloader = torch.utils.data.DataLoader(
 						train_dataset,
 						batch_size=batch_size,

@@ -37,10 +37,6 @@ dataset_path_B = "./dataset/train/domainB/**/*.wav"
 output_dir = "./output/scyclone/train/"
 #使用するデバイス
 device = "cuda:0"
-#ドメインAのデータセットに対して、学習時にデータオーギュメンテーション(音声のキー、音量のランダムな変更)を適用するかどうか
-data_augmentation_A = False
-#ドメインBのデータセットに対して、学習時にデータオーギュメンテーション(音声のキー、音量のランダムな変更)を適用するかどうか
-data_augmentation_B = True
 #バッチサイズ
 batch_size = 8
 #イテレーション数
@@ -59,7 +55,7 @@ os.makedirs(output_dir, exist_ok=True)
 
 #データセットAの読み込み、データセット作成
 path_list_A = make_datapath_list(dataset_path_A)
-train_dataset_A = Audio_Dataset_for_Scyclone(file_list=path_list_A, augmentation=data_augmentation_A, extract_frames=160, hop_length=128)
+train_dataset_A = Audio_Dataset_for_Scyclone(file_list=path_list_A, extract_frames=160, hop_length=128)
 dataloader_A = torch.utils.data.DataLoader(
 								train_dataset_A,
 								batch_size=batch_size,
@@ -72,7 +68,7 @@ dataloader_A = torch.utils.data.DataLoader(
 print("datasetA size: {}".format(len(path_list_A)))
 #データセットBの読み込み、データセット作成
 path_list_B = make_datapath_list(dataset_path_B)
-train_dataset_B = Audio_Dataset_for_Scyclone(file_list=path_list_B, augmentation=data_augmentation_B, extract_frames=160, hop_length=128)
+train_dataset_B = Audio_Dataset_for_Scyclone(file_list=path_list_B, extract_frames=160, hop_length=128)
 dataloader_B = torch.utils.data.DataLoader(
 								train_dataset_B,
 								batch_size=batch_size,
