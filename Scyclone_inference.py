@@ -33,7 +33,7 @@ torch.manual_seed(manualSeed)
 #変換したいwavファイルへのパス
 audio_path = "./dataset/train/domainA/jvs_extracted/ver1/jvs001/VOICEACTRESS100_010.wav"
 #Scycloneの学習済みGeneratorへのパス
-scyclone_trained_model_path = "./output/scyclone/train/iteration140000/generator_A2B_trained_model_cpu.pth"
+scyclone_trained_model_path = "./output/scyclone/train/iteration300000/generator_A2B_trained_model_cpu.pth"
 #学習済みVocoderへのパス
 vocoder_trained_model_path = "./output/vocoder/train/iteration80000/vocoder_trained_model_cpu.pth"
 #結果を出力するためのディレクトリ
