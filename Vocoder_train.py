@@ -40,7 +40,7 @@ device = "cuda:0"
 #バッチサイズ
 batch_size = 16
 #イテレーション数
-total_iterations = 120000
+total_iterations = 250000
 #学習率
 lr = 4e-4
 #学習率をdecay_iterイテレーションごとにdecay_rate倍する
