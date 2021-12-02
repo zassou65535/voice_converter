@@ -77,7 +77,7 @@ padding_frame = (unit_frame - cutout_frame)//2
 
 #cutout_frameフレームずつ変換を行う　unit_frameずつinput_spectrogramから取り出しnetGで変換、出力の中央cutout_frameフレームを結果とする
 result_segments = []#変換結果を格納
-for i in range(0, frame//cutout_frame):
+for i in range(0, int(np.ceil(frame/cutout_frame))):
 	#切り取る箇所を指定
 	start_frame = i*cutout_frame - padding_frame
 	end_frame = (i+1)*cutout_frame + padding_frame
@@ -86,7 +86,8 @@ for i in range(0, frame//cutout_frame):
 	#足りない分に関してzero paddingを行う
 	if(start_frame<0):
 		target_segment = torch.cat([torch.zeros(1, frequency, -start_frame).to(device), target_segment], dim=-1)
-	target_segment = torch.cat([target_segment, torch.zeros(1, frequency, unit_frame - target_segment.size()[1]).to(device)], dim=-1)
+	if(target_segment.size()[-1]<unit_frame):
+		target_segment = torch.cat([target_segment, torch.zeros(1, frequency, unit_frame - target_segment.size()[-1]).to(device)], dim=-1)
 	#netGを用いて変換
 	with torch.no_grad():
 		result_segment = netG(target_segment)
