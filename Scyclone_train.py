@@ -40,7 +40,7 @@ device = "cuda:0"
 #バッチサイズ
 batch_size = 16
 #イテレーション数
-total_iterations = 500000
+total_iterations = 700000
 #学習率
 lr = 0.0002
 #何イテレーションごとに学習結果を出力するか

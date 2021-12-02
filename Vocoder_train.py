@@ -44,7 +44,7 @@ total_iterations = 250000
 #学習率
 lr = 4e-4
 #学習率をdecay_iterイテレーションごとにdecay_rate倍する
-lr_decay_iter = 25000
+lr_decay_iter = 50000
 lr_decay_rate = 0.5
 #何イテレーションごとに学習結果を出力するか
 output_iter = 5000
