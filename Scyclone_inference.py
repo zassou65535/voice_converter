@@ -35,7 +35,7 @@ audio_path = "./dataset/jvs001/VOICEACTRESS100_010.wav"
 #Scycloneの学習済みGeneratorへのパス
 scyclone_trained_model_path = "./output/scyclone/train/iteration380000/generator_A2B_trained_model_cpu.pth"
 #学習済みVocoderへのパス
-vocoder_trained_model_path = "./output/vocoder/train/iteration249999/vocoder_trained_model_cpu.pth"
+vocoder_trained_model_path = "./output/vocoder/train/iteration150000/vocoder_trained_model_cpu.pth"
 #結果を出力するためのディレクトリ
 output_dir = "./output/scyclone/inference/"
 #使用するデバイス
