@@ -11,11 +11,11 @@ python 3.7.1
 ## プログラム
 VocoderとScycloneの学習はそれぞれ別々に行います。
 ### Vocoder
-* `Vocoder_train.py`はVocoderの学習を実行、学習の過程と学習済みモデルを出力します。  
+* `Vocoder_train.py`はVocoderの学習を実行、学習の過程と学習済みモデルを出力するプログラムです。  
 * `Vocoder_inference.py`は`Vocoder_train.py`によって出力された学習済みVocoderを読み込み、推論(スペクトログラムから音声波形の生成)を実行、結果を出力するプログラムです。
 ### Scyclone
-* `Scyclone_train.py`ではScycloneの学習を実行、学習の過程と学習済みモデルを出力します。
-* `Scyclone_inference.py`では`Vocoder_train.py`によって出力された学習済みVocoderと、`Scyclone_train.py`によって出力された学習済みGeneratorの2つを読み込み、`.wav`ファイルに対し推論(ドメインA(変換元)からドメインB(変換先)への変換)を実行し結果を出力するプログラムです。
+* `Scyclone_train.py`はScycloneの学習を実行、学習の過程と学習済みモデルを出力するプログラムです。
+* `Scyclone_inference.py`は`Vocoder_train.py`によって出力された学習済みVocoderと、`Scyclone_train.py`によって出力された学習済みGeneratorの2つを読み込み、`.wav`ファイルに対し推論(ドメインA(変換元)からドメインB(変換先)への変換)を実行し結果を出力するプログラムです。
 
 ## データセットに関する注意点
 データセットはサンプリングレート16000[Hz]、長さ約1.5秒以上の`.wav`形式のファイル群を想定しています。  
