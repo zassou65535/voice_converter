@@ -5,8 +5,9 @@ Pytorchによる、<a href="https://arxiv.org/abs/2005.03334">Scyclone</a>と<a 
 詳しい解説は<a href="">こちら</a>。
 
 ## 想定環境
-python 3.7.1  
-`pip install -r requirements.txt`でライブラリを揃えることができます。
+Ubuntu20.04  
+python 3.8.5 + torch==1.9.1+cu111 + torchaudio==0.9.1  
+ライブラリの詳細は`requirements.txt`を参照。
 
 ## プログラム
 VocoderとScycloneの学習はそれぞれ別々に行います。
