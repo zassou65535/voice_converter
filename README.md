@@ -49,5 +49,5 @@ VocoderとScycloneの学習はそれぞれ別々に行います。
 	* `.wav`ファイルに対し「A→B」と実行され、結果が`./output/scyclone/inference/`以下に出力されます。
 
 ## 参考
-<a href="https://github.com/tarepan/Scyclone-PyTorch">Reimplmentation of voice conversion system "Scyclone" with PyTorch</a>
+<a href="https://github.com/tarepan/Scyclone-PyTorch">Reimplmentation of voice conversion system "Scyclone" with PyTorch</a>  
 <a href="https://github.com/anandaswarup/waveRNN">Recurrent Neural Network based Neural Vocoders</a>
