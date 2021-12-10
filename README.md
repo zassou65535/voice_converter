@@ -47,3 +47,7 @@ VocoderとScycloneの学習はそれぞれ別々に行います。
 1. `Scyclone_inference.py`の38行目付近の変数`vocoder_trained_model_path`で学習済みVocoderへのパスを指定します。
 1. `Scyclone_inference.py`の置いてあるディレクトリで`python Scyclone_inference.py`を実行して、`audio_path`で指定した`.wav`ファイルに対し推論を行います。
 	* `.wav`ファイルに対し「A→B」と実行され、結果が`./output/scyclone/inference/`以下に出力されます。
+
+## 参考
+<a href="https://github.com/tarepan/Scyclone-PyTorch">Reimplmentation of voice conversion system "Scyclone" with PyTorch</a>
+<a href="https://github.com/anandaswarup/waveRNN">Recurrent Neural Network based Neural Vocoders</a>
