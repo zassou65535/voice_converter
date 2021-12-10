@@ -44,6 +44,6 @@ VocoderとScycloneの学習はそれぞれ別々に行います。
 ### 推論の実行
 1. `Scyclone_inference.py`の34行目付近の変数`audio_path`で変換対象とする`.wav`ファイルのパスを指定します。
 1. `Scyclone_inference.py`の36行目付近の変数`scyclone_trained_model_path`で学習済みGeneratorへのパスを指定します。
-1. `Scyclone_inference.py`の38行目付近の変数`vocoder_trained_model_path`で学習済みvocoderへのパスを指定します。
+1. `Scyclone_inference.py`の38行目付近の変数`vocoder_trained_model_path`で学習済みVocoderへのパスを指定します。
 1. `Scyclone_inference.py`の置いてあるディレクトリで`python Scyclone_inference.py`を実行して、`audio_path`で指定した`.wav`ファイルに対し推論を行います。
 	* `.wav`ファイルに対し「A→B」と実行され、結果が`./output/scyclone/inference/`以下に出力されます。
