@@ -2,7 +2,7 @@
 
 ## 概要
 Pytorchによる、<a href="https://arxiv.org/abs/2005.03334">Scyclone</a>と<a href="https://github.com/anandaswarup/waveRNN">Vocoder</a>の2つを用いた音声変換器です。  
-詳しい解説は<a href="">こちら</a>。
+詳しい解説と音声変換例は<a href="">こちら</a>。
 
 ## 想定環境
 Ubuntu20.04  
