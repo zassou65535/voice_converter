@@ -6,7 +6,10 @@ Pytorchによる、<a href="https://arxiv.org/abs/2005.03334">Scyclone</a>と<a 
 
 ## 想定環境
 Ubuntu20.04  
-python 3.8.5 + torch==1.9.1+cu111 + torchaudio==0.9.1  
+python 3.8.5  
+torch==1.9.1+cu111  
+torchaudio==0.9.1  
+torchvision==0.10.1+cu111  
 ライブラリの詳細は`requirements.txt`を参照。
 
 ## プログラム

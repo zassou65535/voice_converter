@@ -10,7 +10,4 @@ python-dateutil==2.8.2
 setuptools-scm==6.3.2
 six==1.16.0
 tomli==1.2.2
-torch==1.9.1+cu111
-torchaudio==0.9.1
-torchvision==0.10.1+cu111
 typing-extensions==4.0.1
